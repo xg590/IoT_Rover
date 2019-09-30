@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
+    <script src="https://guoxiaokang.net/js/leaflet.rotatedMarker.js"> </script>
+    <script src="https://guoxiaokang.net/js/axios.min.js"> </script>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		html, body {
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+		#map {
+			display:inline-block;
+			height: 100%;
+			width: 50%;
+		}
+		#rightHalfSide {
+			display:inline-block;
+			height: 100%;
+			width: auto;
+		}
+		#camera {
+			display:inline-block;
+			position: absolute;
+			height: 100%;
+			width: 49.8%;
+		}
+		#lowerRightCorner {
+            position: absolute;
+            top: 99%;
+            left:99%;
+            transform: translate(-100%, -100%);
+		}
+	</style>
+</head>
+<body>
+	<div id="map"></div>
+	<div id="rightHalfSide">
+		<img id="camera" src="https://{{ip_port}}/stream.mjpg"/> 
+		<div id="lowerRightCorner">
+            <svg id="rightCornerSVG" style="border: 1px solid white;">
+                <circle id="rightCornerCross" r="3" fill="white" />
+                <circle id="gradienter" opacity=".3" r="10" stroke="white" stroke-width="3" fill="red" />
+                Sorry, your browser does not support inline SVG.
+            </svg>
+		</div>
+	</div>
+<script> 
+	var rightCornerBase = 50; //          https://yzlab3.chem.nyu.edu/rover/screenshot-2019-04-08-10.24.34.jpg
+	document.getElementById("rightCornerSVG").setAttribute("height", 2*rightCornerBase+"px"); 
+	document.getElementById("rightCornerSVG").setAttribute("width" , 2*rightCornerBase+"px");  
+	document.getElementById("rightCornerCross").setAttribute("transform", "translate("+rightCornerBase+","+rightCornerBase+")"); 
+	document.getElementById("gradienter").setAttribute("transform", "translate("+rightCornerBase+","+rightCornerBase+")");   
+    //document.getElementById("hehe").innerHTML = html.scrollHeight +','+ html.offsetHeight+','+ html.scrollWidth+','+ html.offsetWidth; 
+</script>
+<script> 
+    var map = L.map('map').setView([40.730481, -73.995499], 13);
+    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+        maxZoom: 18,
+        id: 'mapbox.streets'
+    }).addTo(map);
+    var arrowIcon = L.icon({
+        iconUrl: 'https://guoxiaokang.net/rover/arrow.svg', 
+        iconSize: [16, 32], // width, height
+        iconAnchor: [8, 16],
+    });
+    var homeIcon = L.icon({
+        iconUrl: 'https://guoxiaokang.net/rover/home.svg', 
+        iconSize: [32, 32],
+        iconAnchor: [7, 32],
+        popupAnchor: [0, -35]
+    });  
+    var roverLayer;
+    var timestamp = "newcomer";
+    var updateTimer;  // update the map every few seconds
+    var stopTimer;    // if we cannot get new GPS position in a while, stop update the map.
+    function updater() {
+		axios.get('https://{{ip_port}}/sensor',  {
+				params: {timestamp: timestamp}, 
+				auth: {'username': '{{username}}' , 'password': '{{password}}' }
+			}).then(response => {
+                console.log(response.data);
+				if (response.data.z < 0) {
+					document.getElementById("rightCornerCross").setAttribute("r", rightCornerBase); 
+					document.getElementById("gradienter").setAttribute("opacity", 0); 
+				} else {
+					document.getElementById("gradienter").setAttribute("cx", response.data.x);
+					document.getElementById("gradienter").setAttribute("cy", response.data.y); 
+				}; 
+                var rover = response.data.rover;
+                if (typeof rover != "undefined") {
+                    if (response.data.rover.properties.homePoint != 'false') {
+                        L.marker(rover.properties.homePoint, {icon: homeIcon}).addTo(map); //.bindPopup("<b>Home Point</b>").openPopup(); 
+						 
+                    }
+                    if (typeof roverLayer != "undefined") { map.removeLayer(roverLayer); };
+                    roverLayer = L.geoJSON(rover, {
+                        pointToLayer: function (geoJsonPoint, latlng) {
+                            return L.marker(latlng, { icon: arrowIcon, rotationAngle: response.data.N })
+                        }
+                    }); 
+                    roverLayer.addTo(map); 
+					//if (response.data.focus == "true") { map.setView(rover.properties.newestViewCenter, 13); };
+                    if (timestamp != rover.properties.newestTimestampServerSide) { 
+						timestamp = rover.properties.newestTimestampServerSide; 
+						startTracking();
+					};
+                }
+                var trail = response.data.trail;
+                if (typeof trail != "undefined") { L.geoJSON(trail).addTo(map); };
+            })
+    };
+    function startTracking() {
+        //document.getElementById("restartButton").innerHTML="Tracking ...";
+        clearInterval(updateTimer);
+        clearTimeout(stopTimer);
+        updateTimer = setInterval(updater, 3000)
+        stopTimer = setTimeout(function () {
+            clearInterval(updateTimer); 
+            alert("Tracking stopped after no new GPS position in 60s ~");
+        }, 600000);
+    };
+    startTracking();
+</script>
+</body>
+</html>
