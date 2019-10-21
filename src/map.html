@@ -3,8 +3,8 @@
 <head>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
-    <script src="https://guoxiaokang.net/js/leaflet.rotatedMarker.js"> </script>
-    <script src="https://guoxiaokang.net/js/axios.min.js"> </script>
+    <script src="https://{{ip_port}}/leaflet.rotatedMarker.js"> </script>
+    <script src="https://{{ip_port}}/axios.min.js"> </script> 
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<style>
 		html, body {
@@ -49,12 +49,11 @@
 		</div>
 	</div>
 <script> 
-	var rightCornerBase = 50; //          https://yzlab3.chem.nyu.edu/rover/screenshot-2019-04-08-10.24.34.jpg
+	var rightCornerBase = 50; 
 	document.getElementById("rightCornerSVG").setAttribute("height", 2*rightCornerBase+"px"); 
 	document.getElementById("rightCornerSVG").setAttribute("width" , 2*rightCornerBase+"px");  
 	document.getElementById("rightCornerCross").setAttribute("transform", "translate("+rightCornerBase+","+rightCornerBase+")"); 
 	document.getElementById("gradienter").setAttribute("transform", "translate("+rightCornerBase+","+rightCornerBase+")");   
-    //document.getElementById("hehe").innerHTML = html.scrollHeight +','+ html.offsetHeight+','+ html.scrollWidth+','+ html.offsetWidth; 
 </script>
 <script> 
     var map = L.map('map').setView([40.730481, -73.995499], 13);
@@ -62,17 +61,17 @@
         maxZoom: 18,
         id: 'mapbox.streets'
     }).addTo(map);
+    var homeIcon = L.icon({
+        iconUrl: 'https://{{ip_port}}/home.png', 
+        iconSize: [32, 32],
+        iconAnchor: [3, 29],
+        popupAnchor: [0, -35]
+    });  
     var arrowIcon = L.icon({
-        iconUrl: 'https://guoxiaokang.net/rover/arrow.svg', 
+        iconUrl: 'https://{{ip_port}}/arrow.png', 
         iconSize: [16, 32], // width, height
         iconAnchor: [8, 16],
     });
-    var homeIcon = L.icon({
-        iconUrl: 'https://guoxiaokang.net/rover/home.svg', 
-        iconSize: [32, 32],
-        iconAnchor: [7, 32],
-        popupAnchor: [0, -35]
-    });  
     var roverLayer;
     var timestamp = "newcomer";
     var updateTimer;  // update the map every few seconds
