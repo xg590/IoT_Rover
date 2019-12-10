@@ -24,7 +24,7 @@ User can use a Xbox Wireless Controller to drive the rover and tweak the angle o
   
 #### New in v1.2
 1. Offload the communication with sensors to Arduino Nano
-2. Communication can be interrupted by network error and will resume automatically after that.
+2. TCP Communication can be interrupted by network error and will resume automatically after that.
  
 #### New in v1.1
 1. All resources are localized if possible.
