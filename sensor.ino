@@ -82,5 +82,5 @@ static void gy_bno055() {
 static void voltmeter() {
   int sensorValue = analogRead(A6); 
   float voltage = sensorValue / 1023.0 * 5.0; 
-  Serial.print(voltage);
+  Serial.println(voltage);
 }
