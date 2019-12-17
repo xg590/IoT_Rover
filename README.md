@@ -12,7 +12,7 @@ User can use a Xbox Wireless Controller to drive the rover and tweak the angle o
 
 * Besides, all communication are protected by SSL (TCP/HTTP over TLS)
 #### Photo
-![alt text](https://raw.githubusercontent.com/xg590/rover/v1.1/github/photo.jpg "real rover")
+![alt text](https://github.com/xg590/rover/blob/v1.2/github/photo.jpg "real rover")
 #### Hardware on board:
   1. GPS: GY-NEO6MV2
   2. Compass: GY-BNO055
