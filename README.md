@@ -16,11 +16,11 @@ User can use a Xbox Wireless Controller to drive the rover and tweak the angle o
 #### Hardware on board:
   1. GPS: GY-NEO6MV2
   2. Compass: GY-BNO055
-  3. Arudino Nano
+  3. Arudino Uno
   4. Motor Driver: PCA9685 + TB6612 DC/Stepper Motor Driver Board
   5. IR Cam: Kuman RPi Camera
-  6. 2-DOF Gimbal and Steering System: 9g Servo
-  7. Raspberry Pi 3 A+
+  6. Servo: SG90
+  7. Raspberry Pi 3B
   
 #### New in v1.2
 1. Offload the communication with sensors to Arduino Nano
@@ -29,4 +29,4 @@ User can use a Xbox Wireless Controller to drive the rover and tweak the angle o
 #### New in v1.1
 1. All resources are localized if possible.
 2. Use tcp for the sensor data communication as shown above. The first version actually use http which is expensive for on-board RPi.
- 
+
