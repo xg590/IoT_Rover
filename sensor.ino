@@ -1,3 +1,11 @@
+/*
+cd arduino-1.8.12/
+./arduino --install-library "Adafruit Unified Sensor"
+./arduino --install-library "Adafruit BNO055"
+./arduino --install-library TinyGPS
+./arduino --board arduino:avr:uno --port /dev/ttyUSB0 --upload ../sensor.ino
+*/
+
 #include <SoftwareSerial.h> 
 #include <TinyGPS.h> 
 #include <Wire.h>
@@ -12,19 +20,19 @@ void setup(void) {
   Serial.begin(115200);
   uart.begin(9600); // gps
   i2c.begin(); // compass
-  delay(1000);
+  delay(1000); // delay for compass
 }
 
 void loop() { 
-  gy_neo6mv2(); 
+//  gy_neo6mv2(); 
   gy_bno055();
-  voltmeter();
+//  voltmeter();
   delay(1000);
 }
 
 static void gy_neo6mv2() {
   while (uart.available()) {
-    char c = uart.read(); // Serial.write(c);
+    char c = uart.read(); 
     tinygps.encode(c); 
   }
   float flat, flon;
@@ -80,7 +88,7 @@ static void gy_bno055() {
 } 
 
 static void voltmeter() {
-  int sensorValue = analogRead(A6); 
+  int sensorValue = analogRead(A6);
   float voltage = sensorValue / 1023.0 * 5.0; 
   Serial.println(voltage);
 }
