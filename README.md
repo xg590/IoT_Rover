@@ -14,14 +14,13 @@ User can use a Xbox Wireless Controller to drive the rover and tweak the angle o
 #### Photo
 ![alt text](https://github.com/xg590/rover/blob/v1.2/github/photo.jpg "real rover")
 #### Hardware on board:
-  1. GPS: GY-NEO6MV2
-  2. Compass: GY-BNO055
-  3. Arudino Uno
-  4. Motor Driver: PCA9685 + TB6612 DC/Stepper Motor Driver Board
-  5. IR Cam: Kuman RPi Camera
-  6. Servo: SG90
-  7. Raspberry Pi 3B
-  
+  1. Raspberry Pi 3B
+  2. Arudino Uno
+  3. Servo: SG90
+  4. GPS: GY-NEO6MV2
+  5. Compass: GY-BNO055
+  6. IR Cam: Kuman RPi Camera
+  7. Motor Driver: PCA9685 + TB6612 DC/Stepper Motor Driver Board 
 #### New in v1.2
 1. Offload the communication with sensors to Arduino Nano
 2. TCP Communication can be interrupted by network error and will resume automatically after that.
