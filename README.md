@@ -22,7 +22,7 @@ User can use a Xbox Wireless Controller to drive the rover and tweak the angle o
   6. IR Cam: Kuman RPi Camera
   7. Motor Driver: PCA9685 + TB6612 DC/Stepper Motor Driver Board 
 #### New in v1.2
-1. Offload the communication with sensors to Arduino Nano
+1. Offload the communication with sensors to Arduino
 2. TCP Communication can be interrupted by network error and will resume automatically after that.
  
 #### New in v1.1
