@@ -2,7 +2,7 @@
 sudo ln -s /home/pi/arduino-1.8.12/arduino /usr/local/bin/arduino
 arduino --install-library "Adafruit Unified Sensor"
 arduino --install-library "Adafruit BNO055" 
-arduino --board arduino:avr:uno --port /dev/ttyUSB0 --upload sensor.ino
+arduino --board arduino:avr:uno --port /dev/ttyUSB0 --upload BNO055.ino
 
 import serial
 with serial.Serial(port='/dev/ttyUSB0', baudrate=115200, timeout=2) as s:
@@ -23,7 +23,7 @@ void setup(void) {
 }
 
 void loop() {  
-  Serial.print("$BNO055,");
+  Serial.print("$BNO055,"); 
   gy_bno055(); 
   Serial.print(',');
   voltmeter(A0); // 4V
