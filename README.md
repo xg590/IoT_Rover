@@ -1,4 +1,4 @@
-## Rover ver 1.2 @ Jan 00 2020
+## Rover ver 1.2 @ Apr 00 2020
 #### This is a rover that could be controlled over the internet.<br>
 ![alt text](https://raw.githubusercontent.com/xg590/rover/v1.1/github/architecture.png "architecture")
 User can use a Xbox Wireless Controller to drive the rover and tweak the angle of on-board camera. A website is set up to track the GPS position of rover and display the real-time image captured from the rover. In addition, a gradienter on the lower right corner of the website gives user the information about terrant. 
@@ -6,7 +6,7 @@ User can use a Xbox Wireless Controller to drive the rover and tweak the angle o
 1. The Controller is linked to a Raspberry Pi (RPi) Zero W or Windows 10 [tested] via Bluetooth.
 2. RPi sends commands from Controller to a publicly accessible Web Server.
 3. The Server forwards processed commands to the Rover.
-4. Rover moves around accordingly as the on-board camera and sensors (gps, compass, accelerometer, thermometer) record.
+4. Rover moves around accordingly as the on-board camera and sensors (gps, compass, thermometer) record.
 5. Image and sensor log are sent back to web server, where the image is stored on the fly while log is processed and stored in a database.
 6. A web browser of user can access the webpage on server, fetch the latest image and GPS log, and render them for inspection. 
 
