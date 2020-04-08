@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -72,44 +73,37 @@
         iconSize: [16, 32], // width, height
         iconAnchor: [8, 16],
     });
+	console.log("{{username}}" , "{{password}}" );
     var roverLayer;
     var timestamp = "newcomer";
     var updateTimer;  // update the map every few seconds
     var stopTimer;    // if we cannot get new GPS position in a while, stop update the map.
     function updater() {
 		axios.get('https://{{ip_port}}/sensor',  {
-				params: {timestamp: timestamp}, 
-				auth: {'username': '{{username}}' , 'password': '{{password}}' }
+				params: {'q': timestamp}, 
+				auth: {"username": "{{username}}" , "password": "{{password}}" }
 			}).then(response => {
-                console.log(response.data);
-				if (response.data.z < 0) {
+                console.log(response.data);  
+				if (response.data.z > 90 || response.data.z < -90) {
 					document.getElementById("rightCornerCross").setAttribute("r", rightCornerBase); 
 					document.getElementById("gradienter").setAttribute("opacity", 0); 
 				} else {
-					document.getElementById("gradienter").setAttribute("cx", response.data.x);
-					document.getElementById("gradienter").setAttribute("cy", response.data.y); 
+					document.getElementById("gradienter").setAttribute("cx", response.data.y);
+					document.getElementById("gradienter").setAttribute("cy", response.data.z); 
 				}; 
-                var rover = response.data.rover;
-                if (typeof rover != "undefined") {
-                    if (response.data.rover.properties.homePoint != 'false') {
-                        L.marker(rover.properties.homePoint, {icon: homeIcon}).addTo(map); //.bindPopup("<b>Home Point</b>").openPopup(); 
-						 
-                    }
-                    if (typeof roverLayer != "undefined") { map.removeLayer(roverLayer); };
-                    roverLayer = L.geoJSON(rover, {
-                        pointToLayer: function (geoJsonPoint, latlng) {
-                            return L.marker(latlng, { icon: arrowIcon, rotationAngle: response.data.N })
-                        }
-                    }); 
+                if (timestamp == "newcomer") {
+					L.marker(response.data.HomeSpot, {icon: homeIcon}).addTo(map);
+					timestamp = response.data.newestTimestampServerSide;
+				} else if (timestamp == response.data.newestTimestampServerSide) {
+					console.log("no new GPS data");
+				} else {				
+                    if (typeof roverLayer != "undefined") { map.removeLayer(roverLayer); }; // 
+                    roverLayer = L.marker(response.data.CurrentSpot, {icon: arrowIcon, rotationAngle: response.data.x});
                     roverLayer.addTo(map); 
-					//if (response.data.focus == "true") { map.setView(rover.properties.newestViewCenter, 13); };
-                    if (timestamp != rover.properties.newestTimestampServerSide) { 
-						timestamp = rover.properties.newestTimestampServerSide; 
-						startTracking();
-					};
-                }
-                var trail = response.data.trail;
-                if (typeof trail != "undefined") { L.geoJSON(trail).addTo(map); };
+					L.geoJSON(response.data.trail).addTo(map);			
+					startTracking();	
+					timestamp = response.data.newestTimestampServerSide	
+				}   
             })
     };
     function startTracking() {
