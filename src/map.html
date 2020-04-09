@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -75,48 +74,57 @@
     });
 	console.log("{{username}}" , "{{password}}" );
     var roverLayer;
-    var timestamp = "newcomer";
+    var newestTimestampAtClientSide = "newcomer";
     var updateTimer;  // update the map every few seconds
     var stopTimer;    // if we cannot get new GPS position in a while, stop update the map.
+	function gradienter(response) {
+		if (response.data.z > 90 || response.data.z < -90) {
+			document.getElementById("rightCornerCross").setAttribute("r", rightCornerBase); 
+			document.getElementById("gradienter").setAttribute("opacity", 0); 
+		} else {
+			document.getElementById("gradienter").setAttribute("cx", response.data.z);
+			document.getElementById("gradienter").setAttribute("cy", response.data.y); 
+		}; 
+	};
     function updater() {
 		axios.get('https://{{ip_port}}/sensor',  {
-				params: {'q': timestamp}, 
+				params: {'q': newestTimestampAtClientSide}, 
 				auth: {"username": "{{username}}" , "password": "{{password}}" }
 			}).then(response => {
-                console.log(response.data);  
-				if (response.data.z > 90 || response.data.z < -90) {
-					document.getElementById("rightCornerCross").setAttribute("r", rightCornerBase); 
-					document.getElementById("gradienter").setAttribute("opacity", 0); 
-				} else {
-					document.getElementById("gradienter").setAttribute("cx", response.data.y);
-					document.getElementById("gradienter").setAttribute("cy", response.data.z); 
-				}; 
-                if (timestamp == "newcomer") {
-					L.marker(response.data.HomeSpot, {icon: homeIcon}).addTo(map);
-					timestamp = response.data.newestTimestampServerSide;
-				} else if (timestamp == response.data.newestTimestampServerSide) {
+                console.log(response.data); 
+                if (newestTimestampAtClientSide == "newcomer") {
+					if (response.data.newestTimestampAtServerSide == "newcomer") { 
+						console.log("no GPS data"); 
+					} else { // Vaild GPS data is coming  
+						L.marker(response.data.HomeSpot, {icon: homeIcon}).addTo(map);
+						newestTimestampAtClientSide = response.data.newestTimestampAtServerSide;
+						gradienter(response);
+						console.log("HomeSpot"); 
+					}
+				} else if (newestTimestampAtClientSide == response.data.newestTimestampAtServerSide) {
 					console.log("no new GPS data");
-				} else {				
+				} else { 
                     if (typeof roverLayer != "undefined") { map.removeLayer(roverLayer); }; // 
                     roverLayer = L.marker(response.data.CurrentSpot, {icon: arrowIcon, rotationAngle: response.data.x});
                     roverLayer.addTo(map); 
-					L.geoJSON(response.data.trail).addTo(map);			
-					startTracking();	
-					timestamp = response.data.newestTimestampServerSide	
+					L.geoJSON(response.data.trail).addTo(map);		
+					Tracking();	 
+					newestTimestampAtClientSide = response.data.newestTimestampAtServerSide	
 				}   
             })
     };
-    function startTracking() {
+    function Tracking() {
+		console.log("Tracking");
         //document.getElementById("restartButton").innerHTML="Tracking ...";
-        clearInterval(updateTimer);
-        clearTimeout(stopTimer);
-        updateTimer = setInterval(updater, 3000)
+		if (typeof updateTimer != "undefined") { clearInterval(updateTimer); }
+		if (typeof stopTimer   != "undefined") { clearTimeout( stopTimer); } 
+        updateTimer = setInterval(updater, 3000); // update every 3 sec
         stopTimer = setTimeout(function () {
             clearInterval(updateTimer); 
             alert("Tracking stopped after no new GPS position in 60s ~");
-        }, 600000);
+        }, 600000); // stop if 1 min
     };
-    startTracking();
+    Tracking();
 </script>
 </body>
 </html>
