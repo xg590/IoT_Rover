@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
-    <script src="https://{{ip_port}}/leaflet.rotatedMarker.js"> </script>
-    <script src="https://{{ip_port}}/axios.min.js"> </script> 
+<head>	<title>IoT_Rover</title>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
+   <script src="https://{{ip_port}}/leaflet.rotatedMarker.js"> </script>
+    <script src="https://{{ip_port}}/axios.min.js"> </script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<style>
 		html, body {
@@ -12,119 +12,264 @@
 			margin: 0;
 			padding: 0;
 		}
-		#map {
-			display:inline-block;
-			height: 100%;
-			width: 50%;
-		}
-		#rightHalfSide {
-			display:inline-block;
-			height: 100%;
-			width: auto;
-		}
-		#camera {
-			display:inline-block;
+		#camBox {
 			position: absolute;
-			height: 100%;
-			width: 49.8%;
+			border: 1px solid white;
+			left: 15px;
+			bottom: 15px;
+			z-index: 1;
 		}
-		#lowerRightCorner {
+		#camCtrlBox {
+			background: rgba(200,200,200,.6);
             position: absolute;
-            top: 99%;
-            left:99%;
-            transform: translate(-100%, -100%);
+			border: 3px solid grey;
+			right: 15px;
+			bottom: 15px;
+			width: 120px;
+			height: 120px;
+			z-index: 1;
+		}
+		#telemeterBox {
+			background: rgba(200,200,200,.6); /* https://www.rapidtables.com/web/color/RGB_Color.html */
+			position: absolute; 
+			right: 50%;
+			bottom: 15px; 
+			width: 350px;
+			height: 25px;
+			transform: translate(50%, 0%);
+			z-index: 1;
+		}
+		td {
+			text-align: center;
+			vertical-align: middle;
+		}
+		i {
+			border: 1px solid black;
+			border-width: 0 3px 3px 0;
+			display: inline-block;
+			padding: 3px;
+		}
+		.right { transform: rotate(-45deg)  ; }
+		.left  { transform: rotate(135deg)  ; }
+		.up    { transform: rotate(-135deg) ; }
+		.down  { transform: rotate(45deg)   ; }
+		.reset {
+			height: 1px;
+			width: 1px;
+			background-color: black;
+			border-radius: 100%;
+			display: inline-block;
+		}
+		#mapBox {
+            position: absolute;
+			width: 100%;
+			height: 100%;
+			z-index: 0;
+		}
+		#map {
+			position: relative;
+			height: 100%;
+			width: 100%;
+		}
+		#gradienterBox {
+			background: rgba(200,200,200,.6);
+			border: 3px solid grey;
+            position: absolute;
+            top: 15px;
+            right:15px;
+			width: 120px;
+			height: 120px;
+			z-index: 1;
 		}
 	</style>
 </head>
 <body>
-	<div id="map"></div>
-	<div id="rightHalfSide">
-		<img id="camera" src="https://{{ip_port}}/stream.mjpg"/> 
-		<div id="lowerRightCorner">
-            <svg id="rightCornerSVG" style="border: 1px solid white;">
-                <circle id="rightCornerCross" r="3" fill="white" />
-                <circle id="gradienter" opacity=".3" r="10" stroke="white" stroke-width="3" fill="red" />
-                Sorry, your browser does not support inline SVG.
-            </svg>
-		</div>
+	<div id="mapBox"> <div id="map"> </div> </div>
+	<div id="camBox"> 
+		<img id="camera" style="height: 100%;width: 100%;" src="https://{{ip_port}}/rainbow.jpg"/> 
+		<script> // one time event
+			var changeImageSourceTimer;
+			function changeImageSource() {
+				axios.get('https://{{ip_port}}/imageready',  { auth: {"username": "{{username}}" , "password": "{{password}}" }}
+					).then(response => {
+						if (response.data.imageready) {
+							clearInterval(changeImageSourceTimer);
+							document.getElementById("camera").src = "https://{{ip_port}}/stream.mjpg";
+							console.log("Test succeed");
+						} else {console.log(response.data.imageready);};
+					})
+			};
+			changeImageSourceTimer = setInterval(changeImageSource, 3000); // update every 3 sec
+		</script>
 	</div>
-<script> 
-	var rightCornerBase = 50; 
-	document.getElementById("rightCornerSVG").setAttribute("height", 2*rightCornerBase+"px"); 
-	document.getElementById("rightCornerSVG").setAttribute("width" , 2*rightCornerBase+"px");  
-	document.getElementById("rightCornerCross").setAttribute("transform", "translate("+rightCornerBase+","+rightCornerBase+")"); 
-	document.getElementById("gradienter").setAttribute("transform", "translate("+rightCornerBase+","+rightCornerBase+")");   
-</script>
-<script> 
-    var map = L.map('map').setView([40.730481, -73.995499], 13);
-    L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-        maxZoom: 18,
-        id: 'mapbox.streets'
-    }).addTo(map);
-    var homeIcon = L.icon({
-        iconUrl: 'https://{{ip_port}}/home.png', 
-        iconSize: [32, 32],
-        iconAnchor: [3, 29],
-        popupAnchor: [0, -35]
-    });  
-    var arrowIcon = L.icon({
-        iconUrl: 'https://{{ip_port}}/arrow.png', 
-        iconSize: [16, 32], // width, height
-        iconAnchor: [8, 16],
-    });
-	console.log("{{username}}" , "{{password}}" );
-    var roverLayer;
-    var newestTimestampAtClientSide = "newcomer";
-    var updateTimer;  // update the map every few seconds
-    var stopTimer;    // if we cannot get new GPS position in a while, stop update the map.
-	function gradienter(response) {
-		if (response.data.z > 90 || response.data.z < -90) {
-			document.getElementById("rightCornerCross").setAttribute("r", rightCornerBase); 
-			document.getElementById("gradienter").setAttribute("opacity", 0); 
-		} else {
-			document.getElementById("gradienter").setAttribute("cx", response.data.z);
-			document.getElementById("gradienter").setAttribute("cy", response.data.y); 
-		}; 
-	};
-    function updater() {
-		axios.get('https://{{ip_port}}/sensor',  {
-				params: {'q': newestTimestampAtClientSide}, 
-				auth: {"username": "{{username}}" , "password": "{{password}}" }
-			}).then(response => {
-                console.log(response.data); 
-                if (newestTimestampAtClientSide == "newcomer") {
-					if (response.data.newestTimestampAtServerSide == "newcomer") { 
-						console.log("no GPS data"); 
-					} else { // Vaild GPS data is coming  
-						L.marker(response.data.HomeSpot, {icon: homeIcon}).addTo(map);
-						newestTimestampAtClientSide = response.data.newestTimestampAtServerSide;
-						gradienter(response);
-						console.log("HomeSpot"); 
+	<div id="camCtrlBox">
+		<table style="height: 100%;width: 100%;" >
+			<tr>
+				<td style="color:Black; font-size: small; font-weight: bold;">Cam</td>
+				<td style="width: 34%;"> 
+					 <button type="button" id="camCtrlUp"><i class="up"></i></button> 
+				</td>
+				<td> <button type="button" id="higherCamRes"><b>+</b></button> </td>
+			</tr>
+			<tr>
+				<td> <button type="button" id="camCtrlLeft" ><i class="left" ></i></button> </td>
+				<td> <button type="button" id="camCtrlReset"><i class="reset"  ></i></button> </td>
+				<td> <button type="button" id="camCtrlRight"><i class="right"></i></button> </td>
+			</tr>
+			<tr>
+				<td> <button type="button" id="closeCam"><b>x</b></button> </td>
+				<td> <button type="button" id="camCtrlDown"><i class="down"></i></button> </td>
+				<td> <button type="button" id="lowerCamRes"><b>-</b></button> </td>
+			</tr>
+		</table>
+		<script> // camCtrlBox
+			var defaultCamRes = 0;
+			function scaleCamRes(n){
+				var resolutionOption = [[160, 120], [320, 240], [640,480]];
+				w = resolutionOption[n][0];
+				h = resolutionOption[n][1];
+				document.getElementById('camBox').setAttribute("style", "width: "+w+"px; height: "+h+"px;");
+			};
+			scaleCamRes(defaultCamRes);
+			document.getElementById("higherCamRes").addEventListener("click", function(){
+				if (defaultCamRes < 2) {
+					defaultCamRes++;
+					scaleCamRes(defaultCamRes);
+				};
+			});
+			document.getElementById("lowerCamRes").addEventListener("click", function(){
+				if (defaultCamRes > 0) {
+					defaultCamRes--;
+					scaleCamRes(defaultCamRes);
+				};
+			});
+			var camVisible = true;
+			var visibleItem = ["camBox", "camCtrlUp", "higherCamRes","camCtrlLeft","camCtrlReset","camCtrlRight","camCtrlDown","lowerCamRes"]; 
+			document.getElementById("closeCam").addEventListener("click", function(){
+				if (camVisible) { 
+					document.getElementById("closeCam").innerHTML = "o";
+					for ( x of visibleItem) {  
+						document.getElementById(x).style.visibility = "hidden";
 					}
-				} else if (newestTimestampAtClientSide == response.data.newestTimestampAtServerSide) {
-					console.log("no new GPS data");
-				} else { 
-                    if (typeof roverLayer != "undefined") { map.removeLayer(roverLayer); }; // 
-                    roverLayer = L.marker(response.data.CurrentSpot, {icon: arrowIcon, rotationAngle: response.data.x});
-                    roverLayer.addTo(map); 
-					L.geoJSON(response.data.trail).addTo(map);		
-					Tracking();	 
-					newestTimestampAtClientSide = response.data.newestTimestampAtServerSide	
-				}   
-            })
-    };
-    function Tracking() {
-		console.log("Tracking");
-        //document.getElementById("restartButton").innerHTML="Tracking ...";
-		if (typeof updateTimer != "undefined") { clearInterval(updateTimer); }
-		if (typeof stopTimer   != "undefined") { clearTimeout( stopTimer); } 
-        updateTimer = setInterval(updater, 3000); // update every 3 sec
-        stopTimer = setTimeout(function () {
-            clearInterval(updateTimer); 
-            alert("Tracking stopped after no new GPS position in 60s ~");
-        }, 600000); // stop if 1 min
-    };
-    Tracking();
-</script>
+					camVisible = false;
+				} else {
+					document.getElementById("closeCam").innerHTML = "x"; 
+					for ( x of visibleItem) { 
+						document.getElementById(x).style.visibility = "visible";
+					} 
+					camVisible = true; 
+				};
+			});
+		</script>
+	</div>
+	<div id="telemeterBox">
+		<table style="height: 100%;width: 100%;" >  
+			<tr>  
+				<th style="color:Black; ">Spd:</th> 
+				<td id="spd">N/A</td>
+				<th style="color:Black; ">/ Temp:</th> 
+				<td id="temp">N/A</td>
+				<th style="color:Black; ">/ V1:</th> 
+				<td id="v1">N/A</td>
+				<th style="color:Black; ">/ V2:</th>  
+				<td id="v2">N/A</td> 
+			</tr> 
+		</table>  
+		<script> // one time event
+			function gradienter(y, z) {
+				if (z > 90 ||  z < -90) { 
+					document.getElementById("pointer").setAttribute("r", 200);
+				} else {
+					document.getElementById("pointer").setAttribute("cx", z);
+					document.getElementById("pointer").setAttribute("cy", -1*y);
+				};
+			};
+			var updateTelemetryTimer;
+			function updateTelemetry() {
+				axios.get('https://{{ip_port}}/telemeter',  { auth: {"username": "{{username}}" , "password": "{{password}}" }}
+					).then(response => {
+						if (response.data.telemeterReady){
+							//console.log(response.data);
+							gradienter(response.data.y, response.data.z);  
+							document.getElementById("temp").innerHTML =response.data.temp;
+							document.getElementById("v1").innerHTML =response.data.v1;
+							document.getElementById("v2").innerHTML =response.data.v2;
+						};
+					})
+			};
+			updateTelemetryTimer = setInterval(updateTelemetry, 3000); // update every 3 sec
+		</script>
+	</div>
+    <svg id="gradienterBox">
+        <circle opacity=".2" r="15" stroke="blue" stroke-width="4" fill="red" style="transform: translate(50%, 50%);" />
+        <circle id="pointer" r="3" fill="black" style="transform: translate(50%, 50%);"/>
+        Sorry, your browser does not support inline SVG.
+    </svg>
+	<script>
+		var map = L.map('map').setView([40.730481, -73.995499], 13); 
+		L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+			maxZoom: 18,
+			attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+				'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+				'Imagery Â© <a href="https://www.mapbox.com/">Mapbox</a>',
+			id: 'mapbox/streets-v11',
+			tileSize: 512,
+			zoomOffset: -1
+		}).addTo(map);
+		var homeIcon = L.icon({
+			iconUrl: 'https://{{ip_port}}/home.png',
+			iconSize: [32, 32],
+			iconAnchor: [3, 29],
+			popupAnchor: [0, -35]
+		});
+		var roverIcon = L.icon({
+			iconUrl: 'https://{{ip_port}}/rover.svg',
+			iconSize:   [20, 32], // width, height
+			iconAnchor: [10, 11], 
+		});
+		console.log("{{username}}" , "{{password}}" );
+		var roverLayer;
+		var newestTimestampAtClientSide = "newcomer";
+		var updateTimer;  // update the map every few seconds
+		var stopTimer;    // if we cannot get new GPS position in a while, stop update the map.
+		function updater() {
+			axios.get('https://{{ip_port}}/gps',  {
+					params: {'q': newestTimestampAtClientSide},
+					auth: {"username": "{{username}}" , "password": "{{password}}" }
+				}).then(response => {
+					//console.log(response.data);
+					if (newestTimestampAtClientSide == "newcomer") {
+						if (response.data.newestTimestampAtServerSide == "newcomer") {
+							//console.log("no GPS data");
+						} else { // Vaild GPS data is coming
+							L.marker(response.data.HomeSpot, {icon: homeIcon}).addTo(map);
+							newestTimestampAtClientSide = response.data.newestTimestampAtServerSide; 
+							console.log("HomeSpot");
+						}
+					} else if (newestTimestampAtClientSide == response.data.newestTimestampAtServerSide) {
+						console.log("no new GPS data");
+					} else { // trail
+						if (typeof roverLayer != "undefined") { map.removeLayer(roverLayer); }; //
+						roverLayer = L.marker(response.data.CurrentSpot, {icon: roverIcon, rotationAngle: response.data.x});
+						roverLayer.addTo(map);
+						L.geoJSON(response.data.trail).addTo(map);
+						Tracking();
+						newestTimestampAtClientSide = response.data.newestTimestampAtServerSide
+					}
+				})
+		};
+		function Tracking() {
+			console.log("Tracking");
+			//document.getElementById("restartButton").innerHTML="Tracking ...";
+			if (typeof updateTimer != "undefined") { clearInterval(updateTimer); }
+			if (typeof stopTimer   != "undefined") { clearTimeout( stopTimer); }
+			updateTimer = setInterval(updater, 3000); // update every 3 sec
+			stopTimer = setTimeout(function () {
+				clearInterval(updateTimer);
+				alert("Tracking stopped after no new GPS position in 60s ~");
+			}, 600000); // stop if 1 min
+		};
+		Tracking();
+	</script>
 </body>
 </html>
