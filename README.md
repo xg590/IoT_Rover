@@ -1,4 +1,4 @@
-## Rover ver 1.2 @ Apr 00 2020
+## Rover ver 1.3 @ Jul 00 2020
 #### This is a rover that could be controlled over the internet.<br>
 ![alt text](https://raw.githubusercontent.com/xg590/rover/v1.1/github/architecture.png "architecture")
 User can use a Xbox Wireless Controller to drive the rover and tweak the angle of on-board camera. A website is set up to track the GPS position of rover and display the real-time image captured from the rover. In addition, a gradienter on the lower right corner of the website gives user the information about terrant. 
@@ -21,6 +21,17 @@ User can use a Xbox Wireless Controller to drive the rover and tweak the angle o
   5. Compass: GY-BNO055
   6. IR Cam: Kuman RPi Camera
   7. Motor Driver: PCA9685 + TB6612 DC/Stepper Motor Driver Board 
+#### Usage
+* Since additional libraries are needed in Arduino IDE, let's install them on Raspberry Pi
+```
+pi@raspberrypi:~ $ ./arduino --install-library "TinyGPS" 
+pi@raspberrypi:~ $ ./arduino --install-library "Adafruit BNO055" 
+pi@raspberrypi:~ $ ./arduino --install-library "Adafruit Unified Sensor"
+```
+* Disconnect VCC pin of GPS breakout before program the arduino board (Uno for testing)
+```
+pi@raspberrypi:~ $ ./arduino --board arduino:avr:uno --port /dev/ttyUSB0 --upload sensor.ino 
+```
 #### New in v1.2
 1. Offload the communication with sensors to Arduino
 2. TCP Communication can be interrupted by network error and will resume automatically after that.
