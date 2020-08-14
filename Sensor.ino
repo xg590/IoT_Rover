@@ -1,47 +1,65 @@
+/* 
+sudo ln -s /home/pi/arduino-1.8.12/arduino /usr/local/bin/arduino
+arduino --install-library "Adafruit Unified Sensor"
+arduino --install-library "Adafruit BNO055" 
+arduino --board arduino:avr:pro --port /dev/ttyUSB0 --upload Sensor.ino
+
+python 
+import serial
+with serial.Serial(port='/dev/ttyUSB0', baudrate=115200, timeout=2) as s:
+    while 1: print(s.readline())
+*/
 #include <SoftwareSerial.h>  
-#include <TinyGPS.h>  
+#include <TinyGPS.h>    
 #include <Adafruit_Sensor.h>
-#include <Adafruit_BNO055.h> 
+#include <Adafruit_BNO055.h>
 #include <Wire.h>
 
 TinyGPS gps;
-SoftwareSerial uart(0, 1); // (Rx, Tx)
-Adafruit_BNO055 i2c = Adafruit_BNO055(55, 0x29); // id, address
+SoftwareSerial gps_uart(11, 10); // (Rx, Tx) 
+SoftwareSerial report_uart(13, 12); // (Rx, Tx)  
+Adafruit_BNO055 i2c = Adafruit_BNO055(55, 0x29); 
 
 void setup(void) {
-  Serial.begin(115200); 
-  uart.begin(9600);     // gps 
-  i2c.begin();          // compass  
+  report_uart.begin(9600); 
+  gps_uart.begin(9600); // gps   
+  i2c.begin();          // compass
   delay(1000);          // delay for compass 
 }
 
-void loop() {  
-  gy_bno055();  
-  gy_neo6mv2();  
-  Serial.println(); 
+void loop() {   
+  gy_bno055(); 
+  gy_neo6mv2();   
+  voltmeter(A0);
   gps_update(1000);  
 } 
-
+ 
 static void gy_bno055() {
   sensors_event_t bno;
   i2c.getEvent(&bno, Adafruit_BNO055::VECTOR_EULER); 
-  Serial.print(" x|");   Serial.print(bno.orientation.x); 
-  Serial.print(" y|");   Serial.print(bno.orientation.y); 
-  Serial.print(" z|");   Serial.print(bno.orientation.z); 
-  Serial.print(" cel|"); Serial.print(i2c.getTemp()    ); 
-}   
+  report_uart.print(" T|") ; report_uart.print(i2c.getTemp());
+  report_uart.print(" x|") ; report_uart.print(bno.orientation.x);
+  report_uart.print(" y|") ; report_uart.print(bno.orientation.y);
+  report_uart.print(" z|") ; report_uart.print(bno.orientation.z); 
+} 
+
+static void voltmeter(int pinId) {
+  int sensorValue = analogRead(pinId);
+  float voltage = sensorValue / 1023.0 * 5.0;  
+  report_uart.print(" v0|") ; report_uart.print(voltage, 2);
+}
 
 static void gy_neo6mv2() { 
   float lat, lon; unsigned long _; 
   gps.f_get_position(&lat, &lon, &_); 
-  if (lat                != TinyGPS::GPS_INVALID_F_ANGLE   ) { Serial.print(" lat|") ; Serial.print(lat, 6             );}
-  if (lon                != TinyGPS::GPS_INVALID_F_ANGLE   ) { Serial.print(" lon|") ; Serial.print(lon, 6             );}
-  if (gps.f_altitude()   != TinyGPS::GPS_INVALID_F_ALTITUDE) { Serial.print(" alt|") ; Serial.print(gps.f_altitude()   );}
-  if (gps.f_course()     != TinyGPS::GPS_INVALID_F_ANGLE   ) { Serial.print(" cus|") ; Serial.print(gps.f_course()     );}
-  if (gps.f_speed_kmph() != TinyGPS::GPS_INVALID_F_SPEED   ) { Serial.print(" spd|") ; Serial.print(gps.f_speed_kmph() );}
-  if (gps.satellites()   != TinyGPS::GPS_INVALID_SATELLITES) { Serial.print(" sat|") ; Serial.print(gps.satellites()   );} 
+  if (lat                != TinyGPS::GPS_INVALID_F_ANGLE   ) { report_uart.print(" lat|") ; report_uart.print(lat, 6             );}
+  if (lon                != TinyGPS::GPS_INVALID_F_ANGLE   ) { report_uart.print(" lon|") ; report_uart.print(lon, 6             );}
+  if (gps.f_altitude()   != TinyGPS::GPS_INVALID_F_ALTITUDE) { report_uart.print(" alt|") ; report_uart.print(gps.f_altitude()   );}
+  if (gps.f_course()     != TinyGPS::GPS_INVALID_F_ANGLE   ) { report_uart.print(" cus|") ; report_uart.print(gps.f_course()     );}
+  if (gps.f_speed_kmph() != TinyGPS::GPS_INVALID_F_SPEED   ) { report_uart.print(" spd|") ; report_uart.print(gps.f_speed_kmph() );}
+  if (gps.satellites()   != TinyGPS::GPS_INVALID_SATELLITES) { report_uart.print(" sat|") ; report_uart.print(gps.satellites()   );} 
   print_date(gps);
-  Serial.println(); 
+  report_uart.println(); 
 } 
  
 static void gps_update(unsigned long ms)
@@ -49,8 +67,8 @@ static void gps_update(unsigned long ms)
   unsigned long start = millis();
   do 
   {
-    while (uart.available())
-      gps.encode(uart.read());
+    while (gps_uart.available())
+      gps.encode(gps_uart.read());
   } while (millis() - start < ms);
 } 
 
@@ -62,8 +80,8 @@ static void print_date(TinyGPS &gps)
   gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &age);
   if (age != TinyGPS::GPS_INVALID_AGE) {
     char sz[32];
-    sprintf(sz, " ts|%02d-%02d-%02dT%02d:%02d:%02d",
+    sprintf(sz, " ts|%02d-%02d-%02dT%02d:%02d:%02d gps|ok",
         year, month, day, hour, minute, second); 
-    Serial.print(sz);
-  }  
+    report_uart.print(sz);
+  } else { report_uart.print(" gps|"); } // print nothing if not gps update
 } 
