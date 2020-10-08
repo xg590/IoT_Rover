@@ -33,6 +33,17 @@ pi@raspberrypi:~ $ ./arduino --install-library "Adafruit Unified Sensor"
 ```
 pi@raspberrypi:~ $ ./arduino --board arduino:avr:uno --port /dev/ttyUSB0 --upload sensor.ino 
 ```
+#### Streaming Problem
+* Lowest burden for the raspberry pi on rover, no encoding. 
+* Least library dependency
+* Secure video transmition between rover and intermediate server. 
+* Since intermediate server will be Amazon EC2, whose compute power is virtually limitless, encoding (or mux in the future) is acceptable.
+* 
+
+ssh pi@192.168.0.106 -R 3333:127.0.0.1:2222 a@192.168.56.101
+nc -l 2222 | mplayer -fps 25 -demuxer h264es -
+raspivid -t 0 -fps 25 -w 640 -h 480 -o - | nc 127.0.0.1 3333
+intermediate
 #### New in v1.3 
 1. Communication between Arduino and Raspberry Pi is now in UART to save a USB port
 2. A mechanical arm is installed.
