@@ -34,16 +34,30 @@ pi@raspberrypi:~ $ ./arduino --install-library "Adafruit Unified Sensor"
 pi@raspberrypi:~ $ ./arduino --board arduino:avr:uno --port /dev/ttyUSB0 --upload sensor.ino 
 ```
 #### Streaming Problem
-* Lowest burden for the raspberry pi on rover, no encoding. 
-* Least library dependency
-* Secure video transmition between rover and intermediate server. 
-* Since intermediate server will be Amazon EC2, whose compute power is virtually limitless, encoding (or mux in the future) is acceptable.
-* 
+What I want
+1. Low latency
+2. Low burden for the raspberry pi on rover
+3. Secure video transmission between rover and intermediate server. 
+4. Least library dependency
 
-ssh pi@192.168.0.106 -R 3333:127.0.0.1:2222 a@192.168.56.101
-nc -l 2222 | mplayer -fps 25 -demuxer h264es -
+Solution
+* Avoid python and use <i>raspivid</i>
+* Redirect stdout (raw in h264) of raspivid to server via <i>ssh</i>
+* Encoding on the intermediate server and then distribute in webm (maybe)
+
+Implement (Proof of concept)
+* Capture video and sent it to a local port 3333 on raspberry pi
+```shell
 raspivid -t 0 -fps 25 -w 640 -h 480 -o - | nc 127.0.0.1 3333
-intermediate
+```
+* Forward the local port 3333 to a remote port 2222 (I tested it on a third machine)
+```shell
+ssh -R 3333:intermediate_server:2222 pi@rover
+```
+* Listen on 2222 and feed the raw data to mplayer
+````shell
+nc -l 2222 | mplayer -fps 25 -demuxer h264es -
+````
 #### New in v1.3 
 1. Communication between Arduino and Raspberry Pi is now in UART to save a USB port
 2. A mechanical arm is installed.
