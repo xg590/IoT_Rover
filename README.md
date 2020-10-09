@@ -38,7 +38,7 @@ What I want
 * Low latency
 * Low burden for the raspberry pi on rover
 * Secure video transmission between rover and intermediate server. 
-* Least library dependency
+* Least library dependency on rover (Install package is a nightmare on raspberry pi)
 
 Solution
 1. Avoid python and use <i>raspivid</i> 
