@@ -33,7 +33,7 @@ pi@raspberrypi:~ $ ./arduino --install-library "Adafruit Unified Sensor"
 ```
 pi@raspberrypi:~ $ ./arduino --board arduino:avr:uno --port /dev/ttyUSB0 --upload sensor.ino 
 ```
-#### Streaming Problem
+#### Raspberry Pi Streaming Problem
 What I want
 * Low latency
 * Low burden for the raspberry pi on rover
