@@ -54,9 +54,9 @@ raspivid --timeout 0 --width 640 --height 360 --bitrate 1000000 --framerate 25 -
 ```shell
 ssh -R 2222:127.0.0.1:3333 remote_server
 ```
-3. Feed video stream from 2222 to mplayer on server
+3. View the stream from remote_server
 ````shell
-nc 127.0.0.1 2222 | mplayer -fps 25 -demuxer h264es - 
+ffplay -i tcp://127.0.0.1:2222
 ````
 #### New in v1.3 
 1. Communication between Arduino and Raspberry Pi is now in UART to save a USB port
