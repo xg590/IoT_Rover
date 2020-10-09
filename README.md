@@ -35,28 +35,28 @@ pi@raspberrypi:~ $ ./arduino --board arduino:avr:uno --port /dev/ttyUSB0 --uploa
 ```
 #### Streaming Problem
 What I want
-1. Low latency
-2. Low burden for the raspberry pi on rover
-3. Secure video transmission between rover and intermediate server. 
-4. Least library dependency
+* Low latency
+* Low burden for the raspberry pi on rover
+* Secure video transmission between rover and intermediate server. 
+* Least library dependency
 
 Solution
-* Avoid python and use <i>raspivid</i>
-* Redirect stdout (raw in h264) of raspivid to server via <i>ssh</i>
-* Encoding on the intermediate server and then distribute in webm (maybe)
+1. Avoid python and use <i>raspivid</i> 
+2. Redirect stdout (video stream in h264) of raspivid to server via <i>ssh</i>
+3. Encoding on the intermediate server and then distribute in webm (maybe)
 
 Implement (Proof of concept)
-* Capture video and sent it to a local port 3333 on raspberry pi
+1. Capture video and listen on a local port 3333 on raspberry pi (it turned out that there is no noticeable burden on raspberry pi)
 ```shell
-raspivid -t 0 -fps 25 -w 640 -h 480 -o - | nc 127.0.0.1 3333
+raspivid --timeout 0 --width 640 --height 360 --bitrate 1000000 --framerate 25 --profile baseline --listen -o tcp://127.0.0.1:3333
 ```
-* Forward the local port 3333 to a remote port 2222 (I tested it on a third machine)
+2. Initiate a remote port forwarding from raspberry pi and listen on port 2222 of remote server 
 ```shell
-ssh -R 3333:intermediate_server:2222 pi@rover
+ssh -R 2222:127.0.0.1:3333 remote_server
 ```
-* Listen on 2222 and feed the raw data to mplayer
+3. Feed video stream from 2222 to mplayer on server
 ````shell
-nc -l 2222 | mplayer -fps 25 -demuxer h264es -
+nc 127.0.0.1 2222 | mplayer -fps 25 -demuxer h264es - 
 ````
 #### New in v1.3 
 1. Communication between Arduino and Raspberry Pi is now in UART to save a USB port
