@@ -23,6 +23,12 @@
   7. Motor Driver: PCA9685 + TB6612 DC/Stepper Motor Driver Board
   8. Servo Driver: PCA9685 16-Channel Servo Driver
 #### Usage
+* Enable I2C and UART/Serial interfaces of on-board raspberry pi
+* Install python libraries for on-board raspberry pi
+```shell
+sudo apt install python3-pip python3-pigpio 
+pip3 install adafruit-circuitpython-motorkit # motor
+```
 * Since additional libraries are needed in Arduino IDE, let's install them on Raspberry Pi
 ```
 pi@raspberrypi:~ $ ./arduino --install-library "TinyGPS" 
