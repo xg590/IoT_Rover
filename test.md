@@ -37,9 +37,9 @@ motor(0)
 ### Sensor
 * Program arduino on Linux
 ./arduino-1.8.13/arduino --board arduino:avr:nano:cpu=atmega328 --port /dev/ttyUSB0 --upload Sensor.ino
-
-python3 
-
+* Test Sensor
+``` 
 import serial
 with serial.Serial(port='/dev/ttyS0', baudrate=9600, timeout=2) as s:
     while 1: print(s.readline()) 
+```
