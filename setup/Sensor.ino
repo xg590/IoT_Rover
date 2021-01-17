@@ -74,7 +74,7 @@ static void gy_neo6mv2() {
         byte month, day, hour, minute, second, hundredths;
         tinygps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &fix_age);
         char sz[32];
-        sprintf(sz, ",\"ts\":\"%02d-%02d-%02dT%02d:%02d:%02d\",\"gps\":1", year, month, day, hour, minute, second);
+        sprintf(sz, ",\"ts\":\"%02d-%02d-%02dT%02d:%02d:%02dZ\",\"gps\":1", year, month, day, hour, minute, second);
         Serial.print(sz);
     }
 }
