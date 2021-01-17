@@ -37,15 +37,17 @@ void loop()
                 newFix = true;
         }
     }
+    Serial.print("{") ;
     gy_bno055();
-    voltmeter(A3, " v|");
+    voltmeter(A3, "v");
     if (newFix) gy_neo6mv2();
     else {
-      Serial.println(" gps|null");
+      Serial.print(",\"gps\":0");
       digitalWrite(LED_BUILTIN, HIGH); 
       delay(100);                      
       digitalWrite(LED_BUILTIN, LOW);  
     }    
+    Serial.println("}");
 }
 static void gy_neo6mv2() {
     float flat, flon;
@@ -61,32 +63,32 @@ static void gy_neo6mv2() {
     had a fix, but have lost it.*/
     tinygps.f_get_position(&flat, &flon, &fix_age);
     if (fix_age == TinyGPS::GPS_INVALID_AGE)
-        Serial.println(" gps|null"); 
+        Serial.print(",\"gps\":0");
     else {
-        Serial.print(" lat|") ; Serial.print(flat, 6               );
-        Serial.print(" lon|") ; Serial.print(flon, 6               );
-        Serial.print(" alt|") ; Serial.print(tinygps.f_altitude()  );
-        Serial.print(" cus|") ; Serial.print(tinygps.f_course()    );
-        Serial.print(" spd|") ; Serial.print(tinygps.f_speed_kmph());
-        Serial.print(" sat|") ; Serial.print(tinygps.satellites()  );
+        Serial.print(",\"lat\":") ; Serial.print(flat, 6               );
+        Serial.print(",\"lon\":") ; Serial.print(flon, 6               );
+        Serial.print(",\"alt\":") ; Serial.print(tinygps.f_altitude()  );
+        Serial.print(",\"cus\":") ; Serial.print(tinygps.f_course()    );
+        Serial.print(",\"spd\":") ; Serial.print(tinygps.f_speed_kmph());
+        Serial.print(",\"sat\":") ; Serial.print(tinygps.satellites()  );
         int year;
         byte month, day, hour, minute, second, hundredths;
         tinygps.crack_datetime(&year, &month, &day, &hour, &minute, &second, &hundredths, &fix_age);
         char sz[32];
-        sprintf(sz, " ts|%02d-%02d-%02dT%02d:%02d:%02d gps|ok", year, month, day, hour, minute, second);
-        Serial.println(sz);
+        sprintf(sz, ",\"ts\":\"%02d-%02d-%02dT%02d:%02d:%02d\",\"gps\":1", year, month, day, hour, minute, second);
+        Serial.print(sz);
     }
 }
 static void gy_bno055() {
     sensors_event_t bno;
     compass_i2c.getEvent(&bno, Adafruit_BNO055::VECTOR_EULER);
-    Serial.print(" T|") ; Serial.print(compass_i2c.getTemp());
-    Serial.print(" x|") ; Serial.print(bno.orientation.x);
-    Serial.print(" y|") ; Serial.print(bno.orientation.y);
-    Serial.print(" z|") ; Serial.print(bno.orientation.z);
+    Serial.print("\"T\":") ; Serial.print(compass_i2c.getTemp());
+    Serial.print(",\"x\":") ; Serial.print(bno.orientation.x);
+    Serial.print(",\"y\":") ; Serial.print(bno.orientation.y);
+    Serial.print(",\"z\":") ; Serial.print(bno.orientation.z);
 }
-static void voltmeter(int pinId, char const volId[3]) {
+static void voltmeter(int pinId, char const volId[1]) {
     int sensorValue = analogRead(pinId);
     float voltage = sensorValue / 1023.0 * 5.0;
-    Serial.print(volId) ; Serial.print(voltage, 2);
+    Serial.print(",\"") ; Serial.print(volId) ; Serial.print("\":") ; Serial.print(voltage, 2);
 }
