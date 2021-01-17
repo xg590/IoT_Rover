@@ -12,7 +12,7 @@ with serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=3) as s:
 #include <Wire.h>
 #include <TinyGPS.h>
 #include <Adafruit_Sensor.h>
-#include <Adafruit_BNO055.h>  
+#include <Adafruit_BNO055.h>
 SoftwareSerial gps_uart(A1, A2); // (RX, TX). Digital Pin A2 acts as Rx pin which should be wired to Tx pin of GPS breakout board.
 TinyGPS tinygps;
 Adafruit_BNO055 compass_i2c = Adafruit_BNO055(55, 0x29); // wire A4/A5 to SDA/SCL.
@@ -37,16 +37,15 @@ void loop()
                 newFix = true;
         }
     }
-    Serial.print("{") ;
     gy_bno055();
     voltmeter(A3, "v");
     if (newFix) gy_neo6mv2();
     else {
       Serial.print(",\"gps\":0");
-      digitalWrite(LED_BUILTIN, HIGH); 
-      delay(100);                      
-      digitalWrite(LED_BUILTIN, LOW);  
-    }    
+      digitalWrite(LED_BUILTIN, HIGH);
+      delay(100);
+      digitalWrite(LED_BUILTIN, LOW);
+    }
     Serial.println("}");
 }
 static void gy_neo6mv2() {
@@ -82,7 +81,7 @@ static void gy_neo6mv2() {
 static void gy_bno055() {
     sensors_event_t bno;
     compass_i2c.getEvent(&bno, Adafruit_BNO055::VECTOR_EULER);
-    Serial.print("\"T\":") ; Serial.print(compass_i2c.getTemp());
+    Serial.print("{\"T\":") ; Serial.print(compass_i2c.getTemp());
     Serial.print(",\"x\":") ; Serial.print(bno.orientation.x);
     Serial.print(",\"y\":") ; Serial.print(bno.orientation.y);
     Serial.print(",\"z\":") ; Serial.print(bno.orientation.z);
