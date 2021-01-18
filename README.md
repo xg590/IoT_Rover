@@ -27,7 +27,9 @@
 * Run setup/Use_LightSail_as_Server.ipynb with Access key ID (for example, AKIAIOSFODNN7EXAMPLE) and secret access key at hand.
 * Log in the server and run setup/secret.sh
 ##### Rover
-
+```shell
+ssh -i lightsail -NfR 2222:127.0.0.1:3333 -l ubuntu guoxiaokang.net && raspivid --rotation 90 --timeout 0 --width 640 --height 360 --bitrate 1000000 --framerate 25 --profile baseline --listen -o tcp://127.0.0.1:3333 &
+```
 ##### Driver
 * Connect Xbox Wireless Controller to a win10 laptop.
 * 
@@ -50,7 +52,7 @@ arduino --board arduino:avr:nano:cpu=atmega328old --port /dev/ttyUSB0 --upload S
 * Disconnect VCC pin of GPS breakout before program the arduino board (Uno for testing)
 ```
 arduino --board arduino:avr:nano:cpu=atmega328old --port /dev/ttyUSB0 --upload Sensor.ino
-```
+``` 
 #### Raspberry Pi Streaming Problem
 What I want
 * Low latency
