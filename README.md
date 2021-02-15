@@ -11,7 +11,7 @@
 6. A web browser of user can access the webpage on server, fetch the latest image and GPS trace, and render them for user's inspection. 
 * Besides, all communication are protected by SSL
 #### Photo
-![alt text](https://github.com/xg590/rover/blob/v1.2/github/photo.jpg "real rover")
+![alt text](https://github.com/xg590/rover/blob/small/github/photo.jpg "real rover")
 #### Hardware on board:
   1. Raspberry Pi: Zero W
   2. Arudino: Pro Mini 5V
