@@ -3,9 +3,9 @@ sudo ln -s /home/pi/arduino-1.8.13/arduino /usr/local/bin/arduino
 arduino --install-library TinyGPS
 arduino --install-library "Adafruit Unified Sensor"
 arduino --install-library "Adafruit BNO055"
-arduino --board arduino:avr:nano:cpu=atmega328old --port /dev/ttyUSB0 --upload Sensor.ino
+arduino --board arduino:avr:nano:cpu=atmega328old --port /dev/ttyS0 --upload Sensor.ino
 import serial
-with serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=3) as s:
+with serial.Serial(port='/dev/ttyS0', baudrate=9600, timeout=3) as s:
     while 1: print(s.readline())
 */
 #include <SoftwareSerial.h>
@@ -13,7 +13,7 @@ with serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=3) as s:
 #include <TinyGPS.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
-SoftwareSerial gps_uart(A1, A2); // (RX, TX). Digital Pin A2 acts as Rx pin which should be wired to Tx pin of GPS breakout board.
+SoftwareSerial    gps_uart(A2, A3); // (RX, TX). Digital Pin A2 acts as Rx pin which should be wired to Tx pin of GPS breakout board. 
 TinyGPS tinygps;
 Adafruit_BNO055 compass_i2c = Adafruit_BNO055(55, 0x29); // wire A4/A5 to SDA/SCL.
 void setup()
@@ -38,7 +38,7 @@ void loop()
         }
     }
     gy_bno055();
-    voltmeter(A3, "v");
+    //voltmeter(A3, "v");
     if (newFix) gy_neo6mv2();
     else {
       Serial.print(",\"gps\":0");

@@ -1,4 +1,4 @@
-## Rover ver 1.3 @ Jul 00 2020
+ ## Rover ver 1.3 @ Jul 00 2020
 #### This is a rover that could be controlled over the internet.<br>
 ![alt text](https://raw.githubusercontent.com/xg590/rover/v1.1/github/architecture.png "architecture")
 * User can use a Xbox Wireless Controller to steer the rover, tweak the angle of on-board camera. 
@@ -13,13 +13,16 @@
 #### Photo
 ![alt text](https://github.com/xg590/rover/blob/v1.2/github/photo.jpg "real rover")
 #### Hardware on board:
-  1. Raspberry Pi 3A+
-  2. Arudino Nano ([Emakefun](https://www.amazon.com/gp/product/B07GPPK4DK))
+  1. Raspberry Pi: Zero W
+  2. Arudino: Pro Mini 5V
   3. Servo: SG90
   4. GPS: GY-NEO6MV2
   5. Compass: GY-BNO055
-  6. IR Cam: Kuman RPi Camera
+  6. Logic Level Converter: 4 Channels Bi-Directional 3.3V-5V Converter
+  6. Camera: Kuman Infrared Camera
   7. Motor Driver: PCA9685 + TB6612 DC/Stepper Motor Driver Board
+  8. Battery Managment System: [2A 5V Charge Discharge Integrated Module](https://www.amazon.com/dp/B07PZT3ZW2)
+  9. N-Channel MOSFET: RFP30N06LE (30A 60V Enhancement_Mode Logic_Level_Gate)
 #### Usage
 ##### Server
 * Register a domain (Google Domain)

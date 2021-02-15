@@ -9,9 +9,16 @@ sudo pigpiod -p 8889
 ```
 Python
 ```python
+MOSFET_PIN = 11
+YAW_PIN = 10
+PITCH_PIN = 9
+
 import pigpio
-pi = pigpio.pi(port=8889) ### Start PiGPIO Client 
-pi.set_servo_pulsewidth(21, 0) # ele
+pi = pigpio.pi(port=8889) ### Start PiGPIO Client
+pi.write(MOSFET_PIN, 1) # set local Pi's GPIO 4 low 
+pi.set_servo_pulsewidth(YAW_PIN, 2000)
+pi.set_servo_pulsewidth(PITCH_PIN, 2000)
+
 ```
 ### Test PCA9685_TB6612
 * Install library
