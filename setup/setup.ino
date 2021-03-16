@@ -13,7 +13,7 @@ with serial.Serial(port='/dev/ttyS0', baudrate=9600, timeout=3) as s:
 #include <TinyGPS.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
-SoftwareSerial    gps_uart(A2, A3); // (RX, TX). Digital Pin A2 acts as Rx pin which should be wired to Tx pin of GPS breakout board. 
+SoftwareSerial    gps_uart(6, 5); // (RX, TX). Digital Pin A2 acts as Rx pin which should be wired to Tx pin of GPS breakout board. 
 TinyGPS tinygps;
 Adafruit_BNO055 compass_i2c = Adafruit_BNO055(55, 0x29); // wire A4/A5 to SDA/SCL.
 void setup()
