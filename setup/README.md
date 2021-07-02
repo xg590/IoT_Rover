@@ -1,30 +1,24 @@
-### Test SG90 Servo 
-Library
+#### Libraries
 ```
-sudo apt install python3-pigpio 
+sudo apt install screen python3-pigpio python3-pip
+pip3 install adafruit-circuitpython-motorkit pyserial
 ```
+### Test SG90 Servo  
 Start the daemon
 ```
 sudo pigpiod -p 8889
 ```
 Python
 ```python
-MOSFET_PIN = 11
-YAW_PIN = 10
-PITCH_PIN = 9
+YAW_PIN = 26
+PITCH_PIN = 19
 
 import pigpio
-pi = pigpio.pi(port=8889) ### Start PiGPIO Client
-pi.write(MOSFET_PIN, 1) # set local Pi's GPIO 4 low 
-pi.set_servo_pulsewidth(YAW_PIN, 2000)
-pi.set_servo_pulsewidth(PITCH_PIN, 2000)
-
+pi = pigpio.pi(port=8889) ### Start PiGPIO Client 
+pi.set_servo_pulsewidth(YAW_PIN, 1000)
+pi.set_servo_pulsewidth(PITCH_PIN, 1000)
 ```
-### Test PCA9685_TB6612
-* Install library
-```
-pip3 install adafruit-circuitpython-motorkit 
-```
+### Test PCA9685_TB6612 
 * Run code
 ```python  
 import time
@@ -53,7 +47,7 @@ arduino --board arduino:avr:nano:cpu=atmega328 --port /dev/ttyUSB0 --upload Sens
 * Test
 ``` 
 import serial
-with serial.Serial(port='/dev/ttyUSB0', baudrate=9600, timeout=3) as s:
+with serial.Serial(port='/dev/ttyS0', baudrate=9600, timeout=3) as s:
     while 1: print(s.readline()) 
 ``` 
 ### Connect Bluetooth
